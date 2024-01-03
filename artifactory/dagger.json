@@ -1,0 +1,8 @@
+{
+  "name": "artifactory",
+  "root": "..",
+  "sdk": "go",
+  "dependencies": [
+    "../jfrogcli"
+  ]
+}
