@@ -1,7 +1,7 @@
-go 1.21.3
+go 1.21.7
 
 use (
 	./artifactory
-    ./jfrogcli
-    ./examples
+	./examples
+	./jfrogcli
 )

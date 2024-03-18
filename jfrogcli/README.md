@@ -11,7 +11,7 @@ Use it to install the JFrog CLI in a Dagger container.
 To play with the JFrog CLI in a Dagger shell, run:
 
 ```bash
-$ dagger shell install
+$ dagger call install terminal
 / # jf --version
 jf version 2.52.8
 ```

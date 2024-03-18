@@ -11,8 +11,12 @@ func (e *Examples) PublishGoLibToArtifactory(
 	instanceName string,
 	artifactoryUser string,
 	artifactoryPassword *Secret,
-	version Optional[string],
-	logLevel Optional[string],
+	// +optional
+	// +default="v0.0.1"
+	version string,
+	// +optional
+	// +default="debug"
+	logLevel string,
 ) *Container {
 	var (
 		instanceURL = "https://artifactory." + instanceName + ".org/artifactory"
@@ -24,11 +28,11 @@ func (e *Examples) PublishGoLibToArtifactory(
 		Username:     artifactoryUser,
 		Password:     artifactoryPassword,
 	}).PublishGoLib(
-		dag.Host().Directory("testdata"),
-		version.GetOr("v0.0.1"),
+		dag.CurrentModule().Source().Directory("testdata"),
+		version,
 		repoName,
 		ArtifactoryPublishGoLibOpts{
-			LogLevel: logLevel.GetOr("debug"),
+			LogLevel: logLevel,
 		},
 	)
 }

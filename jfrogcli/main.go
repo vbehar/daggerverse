@@ -8,10 +8,9 @@ import (
 )
 
 const (
-	gitHubReleasesURL     = "https://api.github.com/repos/jfrog/jfrog-cli/releases/latest"
-	fallbackVersion       = "2.52.8"
-	binaryFileURLTpl      = "https://releases.jfrog.io/artifactory/jfrog-cli/v2-jf/%s/jfrog-cli-%s/jf"
-	defaultContainerImage = "cgr.dev/chainguard/wolfi-base"
+	gitHubReleasesURL = "https://api.github.com/repos/jfrog/jfrog-cli/releases/latest"
+	fallbackVersion   = "2.53.2"
+	binaryFileURLTpl  = "https://releases.jfrog.io/artifactory/jfrog-cli/v2-jf/%s/jfrog-cli-%s/jf"
 )
 
 type Jfrogcli struct {
@@ -20,10 +19,11 @@ type Jfrogcli struct {
 
 func New(
 	// version of the JFrog CLI to install. If empty, the latest version will be installed.
-	version Optional[string],
+	// +optional
+	version string,
 ) *Jfrogcli {
 	return &Jfrogcli{
-		Version: version.GetOr(""),
+		Version: version,
 	}
 }
 
@@ -46,7 +46,11 @@ func (c *Jfrogcli) GetLatestVersion(ctx context.Context) (string, error) {
 }
 
 // Install installs the JFrog CLI into the given container.
-func (c *Jfrogcli) Install(ctx context.Context, base Optional[*Container]) (*Container, error) {
+func (c *Jfrogcli) Install(
+	ctx context.Context,
+	// +optional
+	base *Container,
+) (*Container, error) {
 	if c.Version == "" {
 		var err error
 		c.Version, err = c.GetLatestVersion(ctx)
@@ -56,7 +60,10 @@ func (c *Jfrogcli) Install(ctx context.Context, base Optional[*Container]) (*Con
 		}
 	}
 
-	ctr := base.GetOr(dag.Container().From(defaultContainerImage))
+	ctr := base
+	if ctr == nil {
+		ctr = dag.Container().From("cgr.dev/chainguard/wolfi-base")
+	}
 
 	platform, err := ctr.Platform(ctx)
 	if err != nil {

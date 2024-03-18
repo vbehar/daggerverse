@@ -20,20 +20,25 @@ func New(
 	// URL of the Artifactory instance.
 	instanceURL string,
 	// username to use for authentication. If empty, authentication will not be configured.
-	username Optional[string],
+	// +optional
+	username string,
 	// password to use for authentication.
-	password Optional[*Secret],
+	// +optional
+	password *Secret,
 	// name of the Artifactory instance to configure. Defaults to "default".
-	instanceName Optional[string],
+	// +optional
+	// +default="default"
+	instanceName string,
 	// version of the JFrog CLI to install. If empty, the latest version will be installed.
-	jfrogCliVersion Optional[string],
+	// +optional
+	jfrogCliVersion string,
 ) *Artifactory {
 	return &Artifactory{
-		InstanceName:    instanceName.GetOr(defaultInstanceName),
+		InstanceName:    instanceName,
 		InstanceURL:     instanceURL,
-		Username:        username.GetOr(""),
-		Password:        password.GetOr(nil),
-		JfrogCliVersion: jfrogCliVersion.GetOr(""),
+		Username:        username,
+		Password:        password,
+		JfrogCliVersion: jfrogCliVersion,
 	}
 }
 
@@ -87,11 +92,16 @@ func (a *Artifactory) Command(
 	// jf command to run. the "jf" prefix will be added automatically.
 	cmd []string,
 	// container to run the command in. If empty, a new container will be created.
-	ctr Optional[*Container],
+	// +optional
+	ctr *Container,
 	// log level to use for the command. If empty, the default log level will be used.
-	logLevel Optional[string],
+	// +optional
+	logLevel string,
 ) *Container {
-	return ctr.GetOr(dag.Container().From(defaultGenericImage)).
+	if ctr == nil {
+		ctr = dag.Container().From(defaultGenericImage)
+	}
+	return ctr.
 		With(configureArtifactory(a)).
 		With(jfLogLevel(logLevel)).
 		WithFocus().
@@ -99,18 +109,26 @@ func (a *Artifactory) Command(
 		WithoutFocus()
 }
 
-func jfLogLevel(logLevel Optional[string]) WithContainerFunc {
+func jfLogLevel(
+	// +optional
+	logLevel string,
+) WithContainerFunc {
 	return func(ctr *Container) *Container {
-		if logLevel.isSet {
-			ctr = ctr.WithEnvVariable("JFROG_CLI_LOG_LEVEL", strings.ToUpper(logLevel.value))
+		if logLevel != "" {
+			ctr = ctr.WithEnvVariable("JFROG_CLI_LOG_LEVEL", strings.ToUpper(logLevel))
 		}
 		return ctr
 	}
 }
 
-func jfCommand(a *Artifactory, cmd []string, logLevel Optional[string]) WithContainerFunc {
+func jfCommand(
+	a *Artifactory,
+	cmd []string,
+	// +optional
+	logLevel string,
+) WithContainerFunc {
 	return func(ctr *Container) *Container {
-		return a.Command(cmd, Opt(ctr), logLevel)
+		return a.Command(cmd, ctr, logLevel)
 	}
 }
 
@@ -123,7 +141,8 @@ func (a *Artifactory) PublishGoLib(
 	// name of the repository to publish to.
 	repo string,
 	// log level to use for the command. If empty, the default log level will be used.
-	logLevel Optional[string],
+	// +optional
+	logLevel string,
 ) *Container {
 	return dag.Container().From(defaultGoImage).
 		WithMountedDirectory("/src", src).
@@ -133,7 +152,7 @@ func (a *Artifactory) PublishGoLib(
 			"go-config",
 			"--repo-deploy=" + repo,
 			"--server-id-deploy=" + a.InstanceName,
-		}, OptEmpty[string]())).
+		}, "")).
 		With(jfCommand(a, []string{
 			"go-publish",
 			"--detailed-summary",

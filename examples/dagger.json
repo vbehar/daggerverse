@@ -1,9 +1,16 @@
 {
   "name": "examples",
-  "root": "..",
   "sdk": "go",
   "dependencies": [
-    "../artifactory",
-    "../jfrogcli"
-  ]
+    {
+      "name": "artifactory",
+      "source": "../artifactory"
+    },
+    {
+      "name": "jfrogcli",
+      "source": "../jfrogcli"
+    }
+  ],
+  "source": ".",
+  "engineVersion": "v0.10.2"
 }

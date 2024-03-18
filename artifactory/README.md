@@ -7,15 +7,7 @@ This is a [Dagger](https://dagger.io/) module to interact with [JFrog Artifactor
 Ping your artifactory instance:
 
 ```bash
-$ dagger call --instance-url=https://artifactory.example.com/artifactory command --cmd rt,ping --log-level=debug
-✔ dagger call command [5.95s]
-┃ OK
-✔ exec jf rt ping [0.07s]
-┃ 09:53:23 [Debug] JFrog CLI version: 2.52.8
-┃ 09:53:23 [Debug] OS/Arch: linux/arm64
-┃ 09:53:23 [Debug] Usage info is disabled.
-┃ 09:53:23 [Debug] Sending HTTP GET request to: https://artifactory.example.com/artifactory/api/system/ping
-┃ 09:53:23 [Debug] Artifactory response: 200 OK
+$ dagger call --instance-url=https://artifactory.example.com/artifactory command --cmd rt,ping stdout
 ┃ OK
 ```
 
