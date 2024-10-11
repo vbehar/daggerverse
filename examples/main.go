@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+
+	"github.com/vbehar/daggerverse/examples/internal/dagger"
 )
 
 type Examples struct{}
@@ -10,20 +12,20 @@ func (e *Examples) PublishGoLibToArtifactory(
 	ctx context.Context,
 	instanceName string,
 	artifactoryUser string,
-	artifactoryPassword *Secret,
+	artifactoryPassword *dagger.Secret,
 	// +optional
 	// +default="v0.0.1"
 	version string,
 	// +optional
 	// +default="debug"
 	logLevel string,
-) *Container {
+) *dagger.Container {
 	var (
 		instanceURL = "https://artifactory." + instanceName + ".org/artifactory"
 		repoName    = "go-snapshot-" + instanceName
 	)
 
-	return dag.Artifactory(instanceURL, ArtifactoryOpts{
+	return dag.Artifactory(instanceURL, dagger.ArtifactoryOpts{
 		InstanceName: instanceName,
 		Username:     artifactoryUser,
 		Password:     artifactoryPassword,
@@ -31,7 +33,7 @@ func (e *Examples) PublishGoLibToArtifactory(
 		dag.CurrentModule().Source().Directory("testdata"),
 		version,
 		repoName,
-		ArtifactoryPublishGoLibOpts{
+		dagger.ArtifactoryPublishGoLibOpts{
 			LogLevel: logLevel,
 		},
 	)

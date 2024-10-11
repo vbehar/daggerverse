@@ -4,24 +4,20 @@ This is a [Dagger](https://dagger.io/) module for the [JFrog CLI](https://github
 
 Use it to install the JFrog CLI in a Dagger container.
 
-## Usage
-
-### Dagger Shell
-
-To play with the JFrog CLI in a Dagger shell, run:
+## Installation
 
 ```bash
-$ dagger call install terminal
-/ # jf --version
-jf version 2.52.8
+$ dagger install github.com/vbehar/daggerverse/jfrogcli
 ```
 
-or even with a custom version and base container:
+## Usage
+
+### Shell
+
+Test the output of the `jf --version` command:
 
 ```bash
-$ dagger shell --version 2.52.3 install --base alpine
-/ # jf --version
-jf version 2.52.3
+$ dagger call -i -m github.com/vbehar/daggerverse/jfrogcli install with-exec --args jf,--version stdout
 ```
 
 ### Dagger Go SDK
@@ -30,9 +26,9 @@ To use this module from another module:
 
 ```go
 func doSomething(ctr *Container) {
-    ctr = dag.Jfrogcli(JfrogcliOpts{
-		Version: "2.52.8",
-	}).Install(JfrogcliInstallOpts{
+    ctr = dag.Jfrogcli(dagger.JfrogcliOpts{
+		// Version: "2.71.0", // optional
+	}).Install(dagger.JfrogcliInstallOpts{
 		Base: ctr,
 	})
 

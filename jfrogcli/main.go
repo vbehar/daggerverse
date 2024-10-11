@@ -5,21 +5,25 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+
+	"github.com/vbehar/daggerverse/jfrogcli/internal/dagger"
 )
 
 const (
 	gitHubReleasesURL = "https://api.github.com/repos/jfrog/jfrog-cli/releases/latest"
-	fallbackVersion   = "2.53.2"
+	fallbackVersion   = "2.71.0"
 	binaryFileURLTpl  = "https://releases.jfrog.io/artifactory/jfrog-cli/v2-jf/%s/jfrog-cli-%s/jf"
 )
 
 type Jfrogcli struct {
+	// Version of the JFrog CLI binary.
 	Version string
 }
 
 func New(
 	// version of the JFrog CLI to install. If empty, the latest version will be installed.
 	// +optional
+	// +default="2.71.0"
 	version string,
 ) *Jfrogcli {
 	return &Jfrogcli{
@@ -49,8 +53,8 @@ func (c *Jfrogcli) GetLatestVersion(ctx context.Context) (string, error) {
 func (c *Jfrogcli) Install(
 	ctx context.Context,
 	// +optional
-	base *Container,
-) (*Container, error) {
+	base *dagger.Container,
+) (*dagger.Container, error) {
 	if c.Version == "" {
 		var err error
 		c.Version, err = c.GetLatestVersion(ctx)
@@ -76,7 +80,8 @@ func (c *Jfrogcli) Install(
 
 	ctr = ctr.
 		WithMountedFile("/usr/local/bin/jf", binFile).
-		WithExec([]string{"chmod", "+x", "/usr/local/bin/jf"}, ContainerWithExecOpts{SkipEntrypoint: true}).
+		WithExec([]string{"chmod", "+x", "/usr/local/bin/jf"}).
+		WithEnvVariable("PATH", "/usr/local/bin:$PATH", dagger.ContainerWithEnvVariableOpts{Expand: true}).
 		WithEnvVariable("CI", "true").
 		WithEnvVariable("JFROG_CLI_REPORT_USAGE", "false").
 		WithEnvVariable("JFROG_CLI_AVOID_NEW_VERSION_WARNING", "true")
