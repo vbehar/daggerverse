@@ -2,18 +2,30 @@
 
 This is a [Dagger](https://dagger.io/) module to interact with [JFrog Artifactory](https://jfrog.com/artifactory/).
 
+Use it to upload artifacts to Artifactory.
+
+Read the documentation at <https://daggerverse.dev/mod/github.com/vbehar/daggerverse/artifactory>.
+
 ## Usage
 
 Ping your artifactory instance:
 
 ```bash
-$ dagger call --instance-url=https://artifactory.example.com/artifactory command --cmd rt,ping stdout
+$ dagger call -i -m github.com/vbehar/daggerverse/artifactory \
+    --instance-url=https://artifactory.example.com/artifactory \
+    command --cmd rt,ping \
+    stdout
 ┃ OK
 ```
 
 Publish a Go library:
 
 ```bash
+$ export ARTIFACTORY_USER=YOUR_USER
 $ export ARTIFACTORY_PASSWORD=xyz
-$ dagger call --instance-url=https://artifactory.example.com/artifactory --username=YOUR_USER --password=${ARTIFACTORY_PASSWORD} publishGoLib --repo YOUR_ARTIFACTORY_REPO --src ./testdata --version v0.0.1 --log-level debug
+$ export ARTIFACTORY_REPO=YOUR_ARTIFACTORY_REPO
+$ dagger call -i -m github.com/vbehar/daggerverse/artifactory \
+    --instance-url=https://artifactory.example.com/artifactory --username=${ARTIFACTORY_USER} --password=ARTIFACTORY_PASSWORD \
+    publish-go-lib --repo ${ARTIFACTORY_REPO} --src ./testdata --version v0.0.1 \
+    stdout
 ```
