@@ -1,3 +1,7 @@
+// A Dagger Module to install and run the JFrog CLI.
+//
+// JFrog CLI is a command-line tool that allows you to interact with JFrog products,
+// such as Artifactory and Xray.
 package main
 
 import (
@@ -15,6 +19,7 @@ const (
 	binaryFileURLTpl  = "https://releases.jfrog.io/artifactory/jfrog-cli/v2-jf/%s/jfrog-cli-%s/jf"
 )
 
+// Jfrogcli is a Dagger Module to install and run the JFrog CLI.
 type Jfrogcli struct {
 	// Version of the JFrog CLI binary.
 	Version string
