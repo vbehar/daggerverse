@@ -1,3 +1,6 @@
+// A Dagger module to interact with JFrog Artifactory.
+//
+// Artifactory is a service that provides repositories for storing and managing artifacts.
 package main
 
 import (
@@ -12,11 +15,17 @@ const (
 	defaultGoImage      = "cgr.dev/chainguard/go:latest-dev"
 )
 
+// Artifactory is a Dagger Module to interact with JFrog Artifactory.
 type Artifactory struct {
-	InstanceName    string
-	InstanceURL     string
-	Username        string
-	Password        *dagger.Secret
+	// name of the Artifactory instance.
+	InstanceName string
+	// URL of the Artifactory instance.
+	InstanceURL string
+	// username to use for authentication. If empty, authentication will not be configured.
+	Username string
+	// password to use for authentication.
+	Password *dagger.Secret
+	// version of the JFrog CLI.
 	JfrogCliVersion string
 }
 
@@ -48,7 +57,8 @@ func New(
 
 // Configure configures the given container to use the Artifactory instance.
 func (a *Artifactory) Configure(
-	// container to configure.
+	// container to configure. If empty, a new container will be created.
+	// +optional
 	ctr *dagger.Container,
 ) *dagger.Container {
 	ctr = dag.Jfrogcli(dagger.JfrogcliOpts{
@@ -81,12 +91,6 @@ func (a *Artifactory) Configure(
 		WithoutEnvVariable("ARTIFACTORY_PASSWORD")
 }
 
-func configureArtifactory(a *Artifactory) dagger.WithContainerFunc {
-	return func(ctr *dagger.Container) *dagger.Container {
-		return a.Configure(ctr)
-	}
-}
-
 // Command runs the given artifactory (jf) command in the given container.
 func (a *Artifactory) Command(
 	// jf command to run. the "jf" prefix will be added automatically.
@@ -107,29 +111,6 @@ func (a *Artifactory) Command(
 		WithFocus().
 		WithExec(append([]string{"jf"}, cmd...)).
 		WithoutFocus()
-}
-
-func jfLogLevel(
-	// +optional
-	logLevel string,
-) dagger.WithContainerFunc {
-	return func(ctr *dagger.Container) *dagger.Container {
-		if logLevel != "" {
-			ctr = ctr.WithEnvVariable("JFROG_CLI_LOG_LEVEL", strings.ToUpper(logLevel))
-		}
-		return ctr
-	}
-}
-
-func jfCommand(
-	a *Artifactory,
-	cmd []string,
-	// +optional
-	logLevel string,
-) dagger.WithContainerFunc {
-	return func(ctr *dagger.Container) *dagger.Container {
-		return a.Command(cmd, ctr, logLevel)
-	}
 }
 
 // PublishGoLib publishes a Go library to the given repository.
@@ -159,4 +140,33 @@ func (a *Artifactory) PublishGoLib(
 			version,
 		}, logLevel)).
 		WithoutEnvVariable("GOWORK")
+}
+
+func configureArtifactory(a *Artifactory) dagger.WithContainerFunc {
+	return func(ctr *dagger.Container) *dagger.Container {
+		return a.Configure(ctr)
+	}
+}
+
+func jfLogLevel(
+	// +optional
+	logLevel string,
+) dagger.WithContainerFunc {
+	return func(ctr *dagger.Container) *dagger.Container {
+		if logLevel != "" {
+			ctr = ctr.WithEnvVariable("JFROG_CLI_LOG_LEVEL", strings.ToUpper(logLevel))
+		}
+		return ctr
+	}
+}
+
+func jfCommand(
+	a *Artifactory,
+	cmd []string,
+	// +optional
+	logLevel string,
+) dagger.WithContainerFunc {
+	return func(ctr *dagger.Container) *dagger.Container {
+		return a.Command(cmd, ctr, logLevel)
+	}
 }
