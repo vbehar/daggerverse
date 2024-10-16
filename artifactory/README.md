@@ -25,7 +25,7 @@ $ export ARTIFACTORY_USER=YOUR_USER
 $ export ARTIFACTORY_PASSWORD=xyz
 $ export ARTIFACTORY_REPO=YOUR_ARTIFACTORY_REPO
 $ dagger call -i -m github.com/vbehar/daggerverse/artifactory \
-    --instance-url=https://artifactory.example.com/artifactory --username=${ARTIFACTORY_USER} --password=ARTIFACTORY_PASSWORD \
+    --instance-url=https://artifactory.example.com/artifactory --username=${ARTIFACTORY_USER} --password=env:ARTIFACTORY_PASSWORD \
     publish-go-lib --repo ${ARTIFACTORY_REPO} --src ./testdata --version v0.0.1 \
     stdout
 ```

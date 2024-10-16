@@ -1,0 +1,9 @@
+{
+  "name": "jx-release-version",
+  "sdk": "go",
+  "source": ".",
+  "exclude": [
+    "examples"
+  ],
+  "engineVersion": "v0.13.5"
+}
