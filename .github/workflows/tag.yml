@@ -1,0 +1,21 @@
+# GitHub Actions Workflow definition to automatically create a new Git tag on each push to main
+
+name: tag
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  tag:
+    name: tag
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: tag
+        uses: dagger/dagger-for-github@v6
+        with:
+          args: --source=. tag --git-token=env:GITHUB_TOKEN
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,12 @@
+{
+  "name": "daggerverse",
+  "sdk": "go",
+  "dependencies": [
+    {
+      "name": "jx-release-version",
+      "source": "jx-release-version"
+    }
+  ],
+  "source": "dagger",
+  "engineVersion": "v0.13.5"
+}
