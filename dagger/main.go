@@ -30,3 +30,19 @@ func (d *Daggerverse) Tag(
 		},
 	)
 }
+
+func (d *Daggerverse) Release(
+	ctx context.Context,
+	// +optional
+	// +default=false
+	dryRun bool,
+) ([]string, error) {
+	return dag.DaggerverseCockpit().Publish(ctx, d.Source, dagger.DaggerverseCockpitPublishOpts{
+		DryRun: dryRun,
+		Exclude: []string{
+			"dagger.json", // don't include our own CI
+			"artifactory/examples/go",
+			"jfrogcli/examples/go",
+		},
+	})
+}
