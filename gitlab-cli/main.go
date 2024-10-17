@@ -65,14 +65,22 @@ func (g *GitlabCli) Container() *dagger.Container {
 	return ctr
 }
 
-// Glab runs the glab CLI with the given arguments.
-func (g *GitlabCli) Glab(
+// Run runs the glab CLI with the given arguments.
+func (g *GitlabCli) Run(
 	ctx context.Context,
 	// arguments to pass to the glab CLI
 	// +optional
 	args []string,
+	// container to use for the command, instead of the default container
+	// you can use this to customize the container
+	// +optional
+	ctr *dagger.Container,
 ) (string, error) {
-	return g.Container().
+	if ctr == nil {
+		ctr = g.Container()
+	}
+
+	return ctr.
 		WithEntrypoint([]string{"glab"}).
 		WithExec(args, dagger.ContainerWithExecOpts{
 			UseEntrypoint: true,

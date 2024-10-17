@@ -12,7 +12,7 @@ Run a basic glab command:
 
 ```bash
 $ dagger call -m github.com/vbehar/daggerverse/gitlab-cli \
-	glab --args version
+	run --args version
 ```
 
 Or a more complex command, to list the releases of a specific repository in a self-hosted GitLab instance:
@@ -22,6 +22,6 @@ $ dagger call -m github.com/vbehar/daggerverse/gitlab-cli \
 	--token=env:GITLAB_TOKEN \
 	--host=https://gitlab.example.com \
 	--repo=my-owner/my-project \
-	glab \
+	run \
 	--args "release,list"
 ```
