@@ -4,6 +4,7 @@ use (
 	./artifactory
 	./crane
 	./dagger
+	./git-chglog
 	./gitlab-cli
 	./jfrogcli
 	./jx-release-version
