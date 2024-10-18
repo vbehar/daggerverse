@@ -1,6 +1,7 @@
 # GitLab CLI Dagger Module
 
 This is a [Dagger](https://dagger.io/) module for the [GitLab CLI](https://gitlab.com/gitlab-org/cli) tool.
+It also contains the (deprecated) [GitLab Release CLI](https://gitlab.com/gitlab-org/release-cli) tool.
 
 Use it to install the glab CLI in a Dagger container, and easily interact with GitLab API.
 
@@ -19,9 +20,27 @@ Or a more complex command, to list the releases of a specific repository in a se
 
 ```bash
 $ dagger call -m github.com/vbehar/daggerverse/gitlab-cli \
-	--token=env:GITLAB_TOKEN \
+	--private-token=env:GITLAB_TOKEN \
 	--host=https://gitlab.example.com \
 	--repo=my-owner/my-project \
 	run \
 	--args "release,list"
+```
+
+### From inside a GitLab CI pipeline
+
+Note that the [GitLab CLI](https://gitlab.com/gitlab-org/cli) tool [doesn't support "job tokens"](https://gitlab.com/gitlab-org/cli/-/issues/1220) (i.e. the `CI_JOB_TOKEN` environment variable) yet.
+Instead, you'll need to use the [GitLab Release CLI](https://gitlab.com/gitlab-org/release-cli) tool - which properly supports job tokens, but only to manipulate releases.
+
+For example, to create a new release (and tag) in a GitLab CI environment, you can use the following command:
+
+```bash
+$ dagger call -m github.com/vbehar/daggerverse/gitlab-cli \
+	--job-token=env:CI_JOB_TOKEN \
+	--host=https://gitlab.example.com \
+	--repo=my-owner/my-project \
+	create-release \
+		--tag-name=v1.2.3 \
+		--git-ref=main \
+		--description-file=changelog.md
 ```

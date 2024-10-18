@@ -2,26 +2,37 @@
 //
 // GitLab CLI is a command-line tool that allows you to interact with the GitLab API.
 // See https://gitlab.com/gitlab-org/cli for more information.
+// This module also contains the (deprecated) GitLab Release CLI.
+// See https://gitlab.com/gitlab-org/release-cli for more information.
 package main
 
 import (
 	"context"
+	"fmt"
+	"net/url"
+	"strings"
 
 	"github.com/vbehar/daggerverse/gitlab-cli/internal/dagger"
 )
 
 // GitlabCli is a Dagger Module to interact with the GitLab CLI.
 type GitlabCli struct {
-	Token *dagger.Secret
-	Host  string
-	Repo  string
-	Group string
+	PrivateToken      *dagger.Secret
+	JobToken          *dagger.Secret
+	Host              string
+	Repo              string
+	Group             string
+	ReleaseCliVersion string
 }
 
 func New(
-	// token to use for authentication with GitLab.
+	// private (personal) token to use for authentication with GitLab.
 	// +optional
-	token *dagger.Secret,
+	privateToken *dagger.Secret,
+	// (CI) job token to use for authentication with GitLab.
+	// Defined as CI_JOB_TOKEN in the GitLab CI environment.
+	// +optional
+	jobToken *dagger.Secret,
 	// host of the GitLab instance.
 	// +optional
 	host string,
@@ -31,35 +42,56 @@ func New(
 	// default gitlab group for commands accepting the --group flag.
 	// +optional
 	group string,
+	// version of the GitLab Release CLI tool to use.
+	// https://gitlab.com/gitlab-org/release-cli
+	// +optional
+	// +default="v0.18.0"
+	releaseCliVersion string,
 ) *GitlabCli {
 	return &GitlabCli{
-		Token: token,
-		Host:  host,
-		Repo:  repo,
-		Group: group,
+		PrivateToken:      privateToken,
+		JobToken:          jobToken,
+		Host:              host,
+		Repo:              repo,
+		Group:             group,
+		ReleaseCliVersion: releaseCliVersion,
 	}
 }
 
 // Container returns a container with the GitLab CLI installed.
-func (g *GitlabCli) Container() *dagger.Container {
+func (g *GitlabCli) Container(
+	ctx context.Context,
+) *dagger.Container {
 	ctr := dag.Container().
 		From("cgr.dev/chainguard/wolfi-base").
 		WithExec([]string{"apk", "add", "--update", "--no-cache",
 			"ca-certificates",
 			"glab",
-		})
+			"jq",
+		}).
+		WithFile("/usr/bin/release-cli", g.releaseCLI(ctx)).
+		WithExec([]string{"chmod", "+x", "/usr/bin/release-cli"})
 
-	if g.Token != nil {
-		ctr = ctr.WithSecretVariable("GITLAB_TOKEN", g.Token)
+	if g.PrivateToken != nil {
+		ctr = ctr.
+			WithSecretVariable("GITLAB_TOKEN", g.PrivateToken).        // for glab
+			WithSecretVariable("GITLAB_PRIVATE_TOKEN", g.PrivateToken) // for release-cli
+	}
+	if g.JobToken != nil {
+		ctr = ctr.WithSecretVariable("CI_JOB_TOKEN", g.JobToken) // for release-cli
 	}
 	if g.Host != "" {
-		ctr = ctr.WithEnvVariable("GITLAB_HOST", g.Host)
+		ctr = ctr.
+			WithEnvVariable("GITLAB_HOST", g.Host).  // for glab
+			WithEnvVariable("CI_SERVER_URL", g.Host) // for release-cli
 	}
 	if g.Repo != "" {
-		ctr = ctr.WithEnvVariable("GITLAB_REPO", g.Repo)
+		ctr = ctr.
+			WithEnvVariable("GITLAB_REPO", g.Repo).                  // for glab
+			WithEnvVariable("CI_PROJECT_ID", url.PathEscape(g.Repo)) // for release-cli
 	}
 	if g.Group != "" {
-		ctr = ctr.WithEnvVariable("GITLAB_GROUP", g.Group)
+		ctr = ctr.WithEnvVariable("GITLAB_GROUP", g.Group) // for glab
 	}
 
 	return ctr
@@ -77,7 +109,7 @@ func (g *GitlabCli) Run(
 	ctr *dagger.Container,
 ) (string, error) {
 	if ctr == nil {
-		ctr = g.Container()
+		ctr = g.Container(ctx)
 	}
 
 	return ctr.
@@ -86,4 +118,108 @@ func (g *GitlabCli) Run(
 			UseEntrypoint: true,
 		}).
 		Stdout(ctx)
+}
+
+// CreateRelease creates a new release for the given tag.
+// If the tag doesn't exist, it will be created - if you also provide a gitRef.
+func (g *GitlabCli) CreateRelease(
+	ctx context.Context,
+	// name of the tag.
+	// can be an existing tag, or a new tag to create.
+	tagName string,
+	// if the tag should be created, it will be created from this ref.
+	// can be a commit or a branch.
+	// +optional
+	gitRef string,
+	// a file from which to read the release description.
+	// +optional
+	descriptionFile *dagger.File,
+	// container to use for the command, instead of the default container
+	// you can use this to customize the container
+	// +optional
+	ctr *dagger.Container,
+) (string, error) {
+	if ctr == nil {
+		ctr = g.Container(ctx)
+	}
+
+	var description string
+	if descriptionFile != nil {
+		description = "description.md"
+		ctr = ctr.
+			WithWorkdir("/workdir").
+			WithFile(description, descriptionFile)
+	}
+
+	args := []string{
+		"release-cli", "create",
+		"--tag-name", tagName,
+		"--description", description,
+	}
+	if gitRef != "" {
+		args = append(args, "--ref", gitRef)
+	}
+
+	return ctr.
+		WithFocus().
+		WithExec(args).
+		Stdout(ctx)
+}
+
+// UpdateRelease updates an existing release for the given tag.
+func (g *GitlabCli) UpdateRelease(
+	ctx context.Context,
+	// name of the tag.
+	tagName string,
+	// a file from which to read the release description.
+	// +optional
+	descriptionFile *dagger.File,
+	// container to use for the command, instead of the default container
+	// you can use this to customize the container
+	// +optional
+	ctr *dagger.Container,
+) (string, error) {
+	if ctr == nil {
+		ctr = g.Container(ctx)
+	}
+
+	var description string
+	if descriptionFile != nil {
+		description = "description.md"
+		ctr = ctr.
+			WithWorkdir("/workdir").
+			WithFile(description, descriptionFile)
+	}
+
+	args := []string{
+		"release-cli", "update",
+		"--tag-name", tagName,
+		"--description", description,
+	}
+
+	return ctr.
+		WithFocus().
+		WithExec(args).
+		Stdout(ctx)
+}
+
+func (g *GitlabCli) releaseCLI(ctx context.Context) *dagger.File {
+	platform, err := dag.DefaultPlatform(ctx)
+	if err != nil {
+		platform = dagger.Platform("linux/amd64")
+	}
+	var os, arch string
+	elems := strings.Split(string(platform), "/")
+	if len(elems) >= 2 {
+		os = elems[0]
+		arch = elems[1]
+	} else {
+		os = "linux"
+		arch = "amd64"
+	}
+
+	return dag.HTTP(fmt.Sprintf(
+		"https://gitlab.com/gitlab-org/release-cli/-/releases/%s/downloads/bin/release-cli-%s-%s",
+		g.ReleaseCliVersion, os, arch,
+	))
 }
