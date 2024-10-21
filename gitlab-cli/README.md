@@ -39,8 +39,9 @@ $ dagger call -m github.com/vbehar/daggerverse/gitlab-cli \
 	--job-token=env:CI_JOB_TOKEN \
 	--host=https://gitlab.example.com \
 	--repo=my-owner/my-project \
-	create-release \
+	release \
 		--tag-name=v1.2.3 \
-		--git-ref=main \
-		--description-file=changelog.md
+		--description-file=changelog.md \
+		create \
+			--git-ref=main
 ```

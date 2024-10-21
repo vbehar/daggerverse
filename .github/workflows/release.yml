@@ -1,21 +1,27 @@
-# GitHub Actions Workflow definition to automatically create a new release for each new Git tag
+# GitHub Actions Workflow definition to automatically create a new GitHub Release on each push to main
 
 name: release
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - main
 
 jobs:
   release:
     name: release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          fetch-tags: true
+          persist-credentials: false
       - name: release
         uses: dagger/dagger-for-github@v6
         with:
-          args: --source=. release
+          args: release --git-token=env:GIT_TOKEN
+        env:
+          GIT_TOKEN: ${{ secrets.DAGGERVERSE_GITHUB_TOKEN }}

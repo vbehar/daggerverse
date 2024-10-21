@@ -2,36 +2,60 @@ package main
 
 import (
 	"context"
+	"fmt"
 
 	"dagger/daggerverse/internal/dagger"
 )
 
 type Daggerverse struct {
-	Source *dagger.Directory
+	Source   *dagger.Directory
+	RepoName string
 }
 
 func New(
+	// +optional
 	source *dagger.Directory,
+	// +optional
+	// +default="vbehar/daggerverse"
+	repoName string,
 ) *Daggerverse {
+	if source == nil {
+		source = dag.CurrentModule().Source().Directory(".")
+	}
 	return &Daggerverse{
-		Source: source,
+		Source:   source,
+		RepoName: repoName,
 	}
 }
 
-func (d *Daggerverse) Tag(
+func (d *Daggerverse) Release(
 	ctx context.Context,
 	gitToken *dagger.Secret,
 ) (string, error) {
-	return dag.JxReleaseVersion().Tag(ctx,
+	nextVersion, err := dag.JxReleaseVersion().NextVersion(ctx,
 		d.Source.Directory(".git"),
-		gitToken,
-		dagger.JxReleaseVersionTagOpts{
-			FetchTags: true,
-		},
 	)
+	if err != nil {
+		return "", fmt.Errorf("failed to determine next version: %w", err)
+	}
+
+	tagName := "v" + nextVersion
+
+	err = dag.Gh(dagger.GhOpts{
+		Token:  gitToken,
+		Source: d.Source,
+		Repo:   d.RepoName,
+	}).Release().Create(ctx, tagName, tagName, dagger.GhReleaseCreateOpts{
+		GenerateNotes: true,
+	})
+	if err != nil {
+		return "", fmt.Errorf("failed to create release %q: %w", tagName, err)
+	}
+
+	return tagName, nil
 }
 
-func (d *Daggerverse) Release(
+func (d *Daggerverse) Publish(
 	ctx context.Context,
 	// +optional
 	// +default=false
