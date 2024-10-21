@@ -13,15 +13,11 @@ type Daggerverse struct {
 }
 
 func New(
-	// +optional
 	source *dagger.Directory,
 	// +optional
 	// +default="vbehar/daggerverse"
 	repoName string,
 ) *Daggerverse {
-	if source == nil {
-		source = dag.CurrentModule().Source().Directory(".")
-	}
 	return &Daggerverse{
 		Source:   source,
 		RepoName: repoName,

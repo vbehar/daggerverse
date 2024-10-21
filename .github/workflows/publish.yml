@@ -18,4 +18,4 @@ jobs:
       - name: publish
         uses: dagger/dagger-for-github@v6
         with:
-          args: publish
+          args: --source=. publish
