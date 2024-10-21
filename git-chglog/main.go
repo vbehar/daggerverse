@@ -7,6 +7,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"regexp"
 	"strings"
 
@@ -109,10 +110,6 @@ func (g *GitChglog) Changelog(
 		File(changelogFilePath)
 }
 
-var (
-	gitHostnameRegexp = regexp.MustCompile(`git@([^:]+):`)
-)
-
 func replaceRepositoryURL(ctx context.Context, ctr *dagger.Container, tplDir *dagger.Directory) (*dagger.Directory, error) {
 	repoURL, err := retrieveRepositoryURL(ctx, ctr)
 	if err != nil {
@@ -131,6 +128,10 @@ func replaceRepositoryURL(ctx context.Context, ctr *dagger.Container, tplDir *da
 		WithNewFile("config.yml", content), nil
 }
 
+var (
+	gitHostnameRegexp = regexp.MustCompile(`git@([^:]+):`)
+)
+
 func retrieveRepositoryURL(ctx context.Context, ctr *dagger.Container) (string, error) {
 	gitURL, err := ctr.WithExec([]string{
 		"git", "config", "--get", "remote.origin.url",
@@ -146,5 +147,14 @@ func retrieveRepositoryURL(ctx context.Context, ctr *dagger.Container) (string, 
 		hostname := gitHostnameRegexp.FindStringSubmatch(match)[1]
 		return "https://" + hostname + "/"
 	})
-	return repoURL, nil
+
+	u, err := url.Parse(repoURL)
+	if err != nil {
+		return "", fmt.Errorf("invalid repository URL %q: %w", repoURL, err)
+	}
+
+	// ensure we won't leak the user info
+	u.User = nil
+
+	return u.String(), nil
 }
