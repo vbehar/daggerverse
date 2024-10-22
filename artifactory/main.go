@@ -135,6 +135,7 @@ func (a *Artifactory) PublishGoLib(
 		if err != nil {
 			version = "v0.0.1"
 		}
+		version = strings.TrimSpace(version)
 	}
 	return dag.Container().From(defaultGoImage).
 		WithMountedDirectory("/src", src).
