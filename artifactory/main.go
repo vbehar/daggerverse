@@ -120,10 +120,10 @@ func (a *Artifactory) PublishGoLib(
 	// directory containing the Go library to publish.
 	src *dagger.Directory,
 	// version of the library to publish.
-	version string,
-	// name of the repository to publish to.
 	// Default to the output of `git describe --tags`.
 	// +optional
+	version string,
+	// name of the repository to publish to.
 	repo string,
 	// log level to use for the command. If empty, the default log level will be used.
 	// +optional
