@@ -1,14 +1,18 @@
 {
   "name": "artifactory",
   "sdk": "go",
+  "exclude": [
+    "examples"
+  ],
   "dependencies": [
+    {
+      "name": "git",
+      "source": "github.com/shykes/git@4f46bfde5735e17612316a30bc5a43c3eefd6da2"
+    },
     {
       "name": "jfrogcli",
       "source": "../jfrogcli"
     }
-  ],
-  "exclude": [
-    "examples"
   ],
   "source": ".",
   "engineVersion": "v0.13.5"

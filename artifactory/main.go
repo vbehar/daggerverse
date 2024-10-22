@@ -4,6 +4,7 @@
 package main
 
 import (
+	"context"
 	"strings"
 
 	"github.com/vbehar/daggerverse/artifactory/internal/dagger"
@@ -115,16 +116,26 @@ func (a *Artifactory) Command(
 
 // PublishGoLib publishes a Go library to the given repository.
 func (a *Artifactory) PublishGoLib(
+	ctx context.Context,
 	// directory containing the Go library to publish.
 	src *dagger.Directory,
 	// version of the library to publish.
 	version string,
 	// name of the repository to publish to.
+	// Default to the output of `git describe --tags`.
+	// +optional
 	repo string,
 	// log level to use for the command. If empty, the default log level will be used.
 	// +optional
 	logLevel string,
 ) *dagger.Container {
+	if version == "" {
+		var err error
+		version, err = dag.Git().Load(src).Command([]string{"describe", "--tags"}).Stdout(ctx)
+		if err != nil {
+			version = "v0.0.1"
+		}
+	}
 	return dag.Container().From(defaultGoImage).
 		WithMountedDirectory("/src", src).
 		WithWorkdir("/src").
