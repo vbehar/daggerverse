@@ -138,7 +138,7 @@ func New(
 }
 
 // Json returns the JSON representation of the git info
-func (g *GitInfo) Json() (string, error) {
+func (g *GitInfo) Json() (string, error) { //nolint:stylecheck // we want to name it "json"
 	data, err := json.MarshalIndent(g, "", "  ")
 	if err != nil {
 		return "", fmt.Errorf("failed to marshal build infos: %w", err)
@@ -147,7 +147,7 @@ func (g *GitInfo) Json() (string, error) {
 }
 
 // JsonFile returns a dagger file containing the JSON representation of the git info
-func (g *GitInfo) JsonFile() (*dagger.File, error) {
+func (g *GitInfo) JsonFile() (*dagger.File, error) { //nolint:stylecheck // we want to name it "json-file"
 	data, err := g.Json()
 	if err != nil {
 		return nil, err
