@@ -8,6 +8,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/url"
+	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -32,6 +35,10 @@ type GitInfo struct {
 	CommitMessage string
 	// version of the git reference
 	Version string
+	// URL of the git repository
+	URL string
+	// Name of the git repository (last part of the URL)
+	Name string
 }
 
 // New returns a new GitInfo instance with information about the git reference
@@ -45,6 +52,10 @@ func New(
 	// +optional
 	// +default="HEAD"
 	gitRef string,
+	// name of the remote to use
+	// +optional
+	// +default="origin"
+	gitRemoteName string,
 	// base container to use for git commands
 	// default to cgr.dev/chainguard/git:latest
 	// +optional
@@ -124,6 +135,16 @@ func New(
 		return nil, fmt.Errorf("failed to get version: %w", err)
 	}
 
+	repoURL, _ := ctr.
+		WithExec([]string{"git", "config", "--get", "remote." + gitRemoteName + ".url"}).
+		Stdout(ctx)
+	repoURL = useHTTPRepoURL(repoURL)
+
+	var repoName string
+	if repoURL != "" {
+		repoName = filepath.Base(repoURL)
+	}
+
 	gitInfo := &GitInfo{
 		Ref:           gitRef,
 		Branch:        strings.TrimSpace(branch),
@@ -133,6 +154,8 @@ func New(
 		CommitTime:    strings.TrimSpace(commitTime),
 		CommitMessage: strings.TrimSpace(commitMessage),
 		Version:       strings.TrimSpace(version),
+		URL:           repoURL,
+		Name:          repoName,
 	}
 	return gitInfo, nil
 }
@@ -166,6 +189,8 @@ func (g *GitInfo) JsonFile() (*dagger.File, error) { //nolint:stylecheck // we w
 // - commit-time: commit time
 // - commit-message: commit message
 // - version: version of the git reference
+// - url: URL of the git repository
+// - name: Name of the git repository (last part of the URL)
 func (g *GitInfo) Directory() *dagger.Directory {
 	return dag.Directory().
 		WithNewFile("ref", g.Ref).
@@ -175,7 +200,9 @@ func (g *GitInfo) Directory() *dagger.Directory {
 		WithNewFile("commit-user", g.CommitUser).
 		WithNewFile("commit-time", g.CommitTime).
 		WithNewFile("commit-message", g.CommitMessage).
-		WithNewFile("version", g.Version)
+		WithNewFile("version", g.Version).
+		WithNewFile("url", g.URL).
+		WithNewFile("name", g.Name)
 }
 
 // SetEnvVariablesOnContainer sets the git info as environment variables on the container:
@@ -187,6 +214,8 @@ func (g *GitInfo) Directory() *dagger.Directory {
 // - GIT_COMMIT_TIME: commit time
 // - GIT_COMMIT_MESSAGE: commit message
 // - GIT_VERSION: version of the git reference
+// - GIT_URL: URL of the git repository
+// - GIT_NAME: Name of the git repository (last part of the URL)
 func (g *GitInfo) SetEnvVariablesOnContainer(
 	ctr *dagger.Container,
 ) *dagger.Container {
@@ -198,5 +227,31 @@ func (g *GitInfo) SetEnvVariablesOnContainer(
 		WithEnvVariable("GIT_COMMIT_USER", g.CommitUser).
 		WithEnvVariable("GIT_COMMIT_TIME", g.CommitTime).
 		WithEnvVariable("GIT_COMMIT_MESSAGE", g.CommitMessage).
-		WithEnvVariable("GIT_VERSION", g.Version)
+		WithEnvVariable("GIT_VERSION", g.Version).
+		WithEnvVariable("GIT_URL", g.URL).
+		WithEnvVariable("GIT_NAME", g.Name)
+}
+
+var (
+	gitHostnameRegexp = regexp.MustCompile(`git@([^:]+):`)
+)
+
+func useHTTPRepoURL(repoURL string) string {
+	repoURL = strings.TrimSpace(repoURL)
+	repoURL = strings.TrimSuffix(repoURL, ".git")
+
+	repoURL = gitHostnameRegexp.ReplaceAllStringFunc(repoURL, func(match string) string {
+		hostname := gitHostnameRegexp.FindStringSubmatch(match)[1]
+		return "https://" + hostname + "/"
+	})
+
+	u, err := url.Parse(repoURL)
+	if err != nil {
+		return ""
+	}
+
+	// ensure we won't leak the user info
+	u.User = nil
+
+	return u.String()
 }

@@ -10,6 +10,8 @@ Give it a (local) Git repository path, and it will return the following informat
 - the current commit time
 - the current commit message
 - the current "version" (from [git-describe](https://git-scm.com/docs/git-describe))
+- the URL of the remote repository (if any)
+- the name of the repository (the last part of the URL)
 
 You can retrieve these information:
 - in JSON format - as a string output
@@ -35,6 +37,8 @@ $ dagger call -m github.com/vbehar/daggerverse/git-info \
   "CommitUser": "Vincent Behar",
   "CommitTime": "2024-10-22T11:16:27+02:00",
   "CommitMessage": "feat: git-info",
-  "Version": "v1.2.3"
+  "Version": "v1.2.3",
+  "URL": "https://github.com/vbehar/daggerverse",
+  "Name": "daggerverse"
 }
 ```
