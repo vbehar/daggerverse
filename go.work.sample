@@ -1,11 +1,4 @@
 go 1.23.2
 
 use (
-	./artifactory
-	./crane
-	./dagger
-	./git-chglog
-	./gitlab-cli
-	./jfrogcli
-	./jx-release-version
 )

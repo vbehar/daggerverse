@@ -120,7 +120,7 @@ func (a *Artifactory) PublishGoLib(
 	// directory containing the Go library to publish.
 	src *dagger.Directory,
 	// version of the library to publish.
-	// Default to the output of `git describe --tags`.
+	// Default to the "git" version (from the `git describe` cmd).
 	// +optional
 	version string,
 	// name of the repository to publish to.
@@ -131,7 +131,7 @@ func (a *Artifactory) PublishGoLib(
 ) *dagger.Container {
 	if version == "" {
 		var err error
-		version, err = dag.Git().Load(src).Command([]string{"describe", "--tags"}).Stdout(ctx)
+		version, err = dag.GitInfo(src).Version(ctx)
 		if err != nil {
 			version = "v0.0.1"
 		}

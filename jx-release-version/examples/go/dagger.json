@@ -1,10 +1,10 @@
 {
-  "name": "examples",
+  "name": "go",
   "engineVersion": "v0.13.7",
   "sdk": "go",
   "dependencies": [
     {
-      "name": "artifactory",
+      "name": "jx-release-version",
       "source": "../..",
       "pin": ""
     }
