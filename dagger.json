@@ -1,20 +1,23 @@
 {
   "name": "daggerverse",
+  "engineVersion": "v0.13.7",
   "sdk": "go",
   "dependencies": [
     {
       "name": "daggerverse-cockpit",
-      "source": "github.com/quartz-technology/daggerverse/daggerverse-cockpit@627fc4df7de8ce3bd8710fa08ea2db6cf16712b3"
+      "source": "github.com/quartz-technology/daggerverse/daggerverse-cockpit@v0.0.3",
+      "pin": "627fc4df7de8ce3bd8710fa08ea2db6cf16712b3"
     },
     {
       "name": "gh",
-      "source": "github.com/sagikazarmark/daggerverse/gh@68e9daa611183f5334b4059bac6f4aad62da7a37"
+      "source": "github.com/sagikazarmark/daggerverse/gh@gh/v0.9.0",
+      "pin": "68e9daa611183f5334b4059bac6f4aad62da7a37"
     },
     {
       "name": "jx-release-version",
-      "source": "jx-release-version"
+      "source": "jx-release-version",
+      "pin": ""
     }
   ],
-  "source": "dagger",
-  "engineVersion": "v0.13.5"
+  "source": "dagger"
 }

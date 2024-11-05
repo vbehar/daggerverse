@@ -13,6 +13,8 @@ type Daggerverse struct {
 }
 
 func New(
+	// +optional
+	// +defaultPath="/"
 	source *dagger.Directory,
 	// +optional
 	// +default="vbehar/daggerverse"

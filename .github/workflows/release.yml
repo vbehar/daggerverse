@@ -22,6 +22,6 @@ jobs:
       - name: release
         uses: dagger/dagger-for-github@v6
         with:
-          args: --source=. release --git-token=env:GIT_TOKEN
+          args: release --git-token=env:GIT_TOKEN
         env:
           GIT_TOKEN: ${{ secrets.DAGGERVERSE_GITHUB_TOKEN }}

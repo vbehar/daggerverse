@@ -31,9 +31,9 @@ func (e *Examples) Artifactory_PublishGoLib(
 		Password:     artifactoryPassword,
 	}).PublishGoLib(
 		dag.CurrentModule().Source().Directory("testdata"),
-		version,
 		repoName,
 		dagger.ArtifactoryPublishGoLibOpts{
+			Version:  version,
 			LogLevel: logLevel,
 		},
 	)
