@@ -16,7 +16,7 @@ jobs:
         with:
           fetch-depth: 0
       - id: dagger_version
-        uses: sagikazarmark/dagger-version-action
+        uses: sagikazarmark/dagger-version-action@v0.0.1
       - name: publish
         uses: dagger/dagger-for-github@v6
         with:
