@@ -89,7 +89,7 @@ func (a *Artifactory) Configure(
 		}).
 		WithoutEnvVariable("ARTIFACTORY_URL").
 		WithoutEnvVariable("ARTIFACTORY_USERNAME").
-		WithoutEnvVariable("ARTIFACTORY_PASSWORD")
+		WithoutSecretVariable("ARTIFACTORY_PASSWORD")
 }
 
 // Command runs the given artifactory (jf) command in the given container.
