@@ -114,6 +114,29 @@ func (a *Artifactory) Command(
 		WithoutFocus()
 }
 
+// PublishFile publishes a single file to artifactory.
+func (a *Artifactory) PublishFile(
+	ctx context.Context,
+	// file to publish.
+	file *dagger.File,
+	// target path in artifactory.
+	destination string,
+	// log level to use for the command. If empty, the default log level will be used.
+	// +optional
+	logLevel string,
+) (string, error) {
+	return a.Command(
+		[]string{
+			"rt", "u",
+			"/src",
+			destination,
+		},
+		dag.Container().From(defaultGenericImage).
+			WithFile("/src", file),
+		logLevel).
+		Stdout(ctx)
+}
+
 // PublishGoLib publishes a Go library to the given repository.
 func (a *Artifactory) PublishGoLib(
 	ctx context.Context,
