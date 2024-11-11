@@ -18,7 +18,7 @@ jobs:
       - id: dagger_version
         uses: sagikazarmark/dagger-version-action@v0.0.1
       - name: publish
-        uses: dagger/dagger-for-github@v6
+        uses: dagger/dagger-for-github@v7
         with:
           version: ${{ steps.dagger_version.outputs.version }}
           args: publish
