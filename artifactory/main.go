@@ -109,9 +109,7 @@ func (a *Artifactory) Command(
 	return ctr.
 		With(configureArtifactory(a)).
 		With(jfLogLevel(logLevel)).
-		WithFocus().
-		WithExec(append([]string{"jf"}, cmd...)).
-		WithoutFocus()
+		WithExec(append([]string{"jf"}, cmd...))
 }
 
 // PublishFile publishes a single file to artifactory.

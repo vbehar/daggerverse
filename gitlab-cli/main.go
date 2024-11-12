@@ -182,7 +182,6 @@ func (r *Release) Create(
 	gitRef string,
 ) (string, error) {
 	return r.Container(ctx).
-		WithFocus().
 		WithExec([]string{
 			"release-cli", "create",
 			"--tag-name", r.TagName,
@@ -197,7 +196,6 @@ func (r *Release) Update(
 	ctx context.Context,
 ) (string, error) {
 	return r.Container(ctx).
-		WithFocus().
 		WithExec([]string{
 			"release-cli", "update",
 			"--tag-name", r.TagName,

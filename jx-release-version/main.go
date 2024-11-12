@@ -89,7 +89,6 @@ func (jx *JxReleaseVersion) NextVersion(
 	outputFormat string,
 ) (string, error) {
 	return jx.Container(ctx, gitDirectory).
-		WithFocus().
 		WithExec([]string{
 			"jx-release-version",
 			"--fetch-tags=" + strconv.FormatBool(fetchTags),
@@ -146,7 +145,6 @@ func (jx *JxReleaseVersion) Tag(
 ) (string, error) {
 	return jx.Container(ctx, gitDirectory).
 		WithSecretVariable("GIT_TOKEN", gitToken).
-		WithFocus().
 		WithExec([]string{
 			"jx-release-version",
 			"--fetch-tags=" + strconv.FormatBool(fetchTags),

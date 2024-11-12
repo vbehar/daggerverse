@@ -97,7 +97,6 @@ func (g *GitChglog) Changelog(
 	changelogFilePath := "CHANGELOG.md"
 
 	return ctr.
-		WithFocus().
 		WithExec([]string{
 			"--output", changelogFilePath,
 			"--no-color",
