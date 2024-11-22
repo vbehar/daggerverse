@@ -15,6 +15,15 @@ import (
 	"github.com/vbehar/daggerverse/gitlab-cli/internal/dagger"
 )
 
+const (
+	// use fixed base images for reproductible builds and improved caching
+	// the base image: https://images.chainguard.dev/directory/image/wolfi-base/overview
+	// retrieve the latest sha256 hash with: `crane digest cgr.dev/chainguard/wolfi-base:latest`
+	// and to retrieve its creation time: `crane config cgr.dev/chainguard/wolfi-base:latest | jq .created`
+	// This one is from 2024-11-12T16:53:09Z
+	baseWolfiImage = "cgr.dev/chainguard/wolfi-base:latest@sha256:b3dd9cf08283b959c6a0a3c833e68b2882a50129930215060154b43ae6a3e81c"
+)
+
 // GitlabCli is a Dagger Module to interact with the GitLab CLI.
 type GitlabCli struct {
 	PrivateToken      *dagger.Secret
@@ -22,6 +31,7 @@ type GitlabCli struct {
 	Host              string
 	Repo              string
 	Group             string
+	GLabVersion       string
 	ReleaseCliVersion string
 }
 
@@ -42,10 +52,16 @@ func New(
 	// default gitlab group for commands accepting the --group flag.
 	// +optional
 	group string,
-	// version of the GitLab Release CLI tool to use.
-	// https://gitlab.com/gitlab-org/release-cli
+	// version of the GitLab CLI tool to use.
+	// https://gitlab.com/gitlab-org/cli/-/releases
 	// +optional
-	// +default="v0.18.0"
+	// +default="1.49.0"
+	glabVersion string,
+	// version of the GitLab Release CLI tool to use.
+	// https://gitlab.com/gitlab-org/release-cli/-/releases
+	// https://gitlab.com/gitlab-org/release-cli/-/blob/master/CHANGELOG.md
+	// +optional
+	// +default="v0.19.0"
 	releaseCliVersion string,
 ) *GitlabCli {
 	return &GitlabCli{
@@ -54,6 +70,7 @@ func New(
 		Host:              host,
 		Repo:              repo,
 		Group:             group,
+		GLabVersion:       glabVersion,
 		ReleaseCliVersion: releaseCliVersion,
 	}
 }
@@ -63,10 +80,10 @@ func (g *GitlabCli) Container(
 	ctx context.Context,
 ) *dagger.Container {
 	ctr := dag.Container().
-		From("cgr.dev/chainguard/wolfi-base").
+		From(baseWolfiImage).
 		WithExec([]string{"apk", "add", "--update", "--no-cache",
 			"ca-certificates",
-			"glab",
+			"glab~=" + g.GLabVersion,
 			"jq",
 		}).
 		WithFile("/usr/bin/release-cli", g.releaseCLI(ctx)).

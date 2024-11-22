@@ -12,8 +12,19 @@ import (
 
 const (
 	defaultInstanceName = "default"
-	defaultGenericImage = "cgr.dev/chainguard/wolfi-base"
-	defaultGoImage      = "cgr.dev/chainguard/go:latest-dev"
+
+	// use fixed base images for reproductible builds and improved caching
+	// the base wolfi image: https://images.chainguard.dev/directory/image/wolfi-base/overview
+	// retrieve the latest sha256 hash with: `crane digest cgr.dev/chainguard/wolfi-base:latest`
+	// and to retrieve its creation time: `crane config cgr.dev/chainguard/wolfi-base:latest | jq .created`
+	// This one is from 2024-11-12T16:53:09Z
+	baseWolfiImage = "cgr.dev/chainguard/wolfi-base:latest@sha256:b3dd9cf08283b959c6a0a3c833e68b2882a50129930215060154b43ae6a3e81c"
+
+	// the base BUILD image: https://images.chainguard.dev/directory/image/go/overview
+	// retrieve the latest sha256 hash with: `crane digest cgr.dev/chainguard/go:latest-dev`
+	// and to retrieve its creation time: `crane config cgr.dev/chainguard/go:latest-dev | jq .created`
+	// This one is from 2024-11-19T19:17:06Z
+	baseGoImage = "cgr.dev/chainguard/go:latest-dev@sha256:8473b531c4952958c17a60c47ce7a567dd9d28e6376617d5bcb9df6071885a5d"
 )
 
 // Artifactory is a Dagger Module to interact with JFrog Artifactory.
@@ -104,7 +115,7 @@ func (a *Artifactory) Command(
 	logLevel string,
 ) *dagger.Container {
 	if ctr == nil {
-		ctr = dag.Container().From(defaultGenericImage)
+		ctr = dag.Container().From(baseWolfiImage)
 	}
 	return ctr.
 		With(configureArtifactory(a)).
@@ -129,7 +140,7 @@ func (a *Artifactory) PublishFile(
 			"/src",
 			destination,
 		},
-		dag.Container().From(defaultGenericImage).
+		dag.Container().From(baseWolfiImage).
 			WithFile("/src", file),
 		logLevel).
 		Stdout(ctx)
@@ -158,7 +169,7 @@ func (a *Artifactory) PublishGoLib(
 		}
 		version = strings.TrimSpace(version)
 	}
-	return dag.Container().From(defaultGoImage).
+	return dag.Container().From(baseGoImage).
 		WithMountedDirectory("/src", src).
 		WithWorkdir("/src").
 		WithEnvVariable("GOWORK", "off"). // jf tries to run `go list -mod=mod -m` which won't work in workspace mode

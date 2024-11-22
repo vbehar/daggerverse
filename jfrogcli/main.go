@@ -15,8 +15,15 @@ import (
 
 const (
 	gitHubReleasesURL = "https://api.github.com/repos/jfrog/jfrog-cli/releases/latest"
-	fallbackVersion   = "2.71.3"
+	fallbackVersion   = "2.71.5" // from https://github.com/jfrog/jfrog-cli/releases
 	binaryFileURLTpl  = "https://releases.jfrog.io/artifactory/jfrog-cli/v2-jf/%s/jfrog-cli-%s/jf"
+
+	// use fixed base images for reproductible builds and improved caching
+	// the base image: https://images.chainguard.dev/directory/image/wolfi-base/overview
+	// retrieve the latest sha256 hash with: `crane digest cgr.dev/chainguard/wolfi-base:latest`
+	// and to retrieve its creation time: `crane config cgr.dev/chainguard/wolfi-base:latest | jq .created`
+	// This one is from 2024-11-12T16:53:09Z
+	baseWolfiImage = "cgr.dev/chainguard/wolfi-base:latest@sha256:b3dd9cf08283b959c6a0a3c833e68b2882a50129930215060154b43ae6a3e81c"
 )
 
 // Jfrogcli is a Dagger Module to install and run the JFrog CLI.
@@ -28,7 +35,7 @@ type Jfrogcli struct {
 func New(
 	// version of the JFrog CLI to install. If empty, the latest version will be installed.
 	// +optional
-	// +default="2.71.3"
+	// +default="2.71.5"
 	version string,
 ) *Jfrogcli {
 	return &Jfrogcli{
@@ -71,7 +78,7 @@ func (c *Jfrogcli) Install(
 
 	ctr := base
 	if ctr == nil {
-		ctr = dag.Container().From("cgr.dev/chainguard/wolfi-base")
+		ctr = dag.Container().From(baseWolfiImage)
 	}
 
 	platform, err := ctr.Platform(ctx)
