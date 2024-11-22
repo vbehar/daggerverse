@@ -12,6 +12,15 @@ import (
 	"github.com/vbehar/daggerverse/crane/internal/dagger"
 )
 
+const (
+	// use fixed base images for reproductible builds and improved caching
+	// the base crane image: https://images.chainguard.dev/directory/image/crane/overview
+	// retrieve the latest sha256 hash with: `crane digest cgr.dev/chainguard/crane:latest`
+	// and to retrieve its creation time: `crane config cgr.dev/chainguard/crane:latest | jq .created`
+	// This one is from 2024-11-12T12:01:47Z
+	baseCraneImage = "cgr.dev/chainguard/crane:latest@sha256:8b5672afe6a71a1e9c60dc50d49f780bb9c706ea00684772f1d4bebbcd00b1c7"
+)
+
 // Crane is a Dagger Module to interact with the Crane CLI.
 type Crane struct {
 	Registry string
@@ -51,12 +60,7 @@ func New(
 // Container returns a container with the Crane CLI installed
 // and the registry configured - if a registry and credentials are provided.
 func (c *Crane) Container() *dagger.Container {
-	ctr := dag.Container().
-		From("cgr.dev/chainguard/wolfi-base").
-		WithExec([]string{"apk", "add", "--update", "--no-cache",
-			"ca-certificates",
-			"crane",
-		})
+	ctr := dag.Container().From(baseCraneImage)
 
 	if c.Registry != "" {
 		ctr = ctr.WithEnvVariable("REGISTRY_HOST", c.Registry)

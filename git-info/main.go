@@ -17,6 +17,15 @@ import (
 	"github.com/vbehar/daggerverse/git-info/internal/dagger"
 )
 
+const (
+	// use fixed base images for reproductible builds and improved caching
+	// the base git image: https://images.chainguard.dev/directory/image/git/overview
+	// retrieve the latest sha256 hash with: `crane digest cgr.dev/chainguard/git:latest`
+	// and to retrieve its creation time: `crane config cgr.dev/chainguard/git:latest | jq .created`
+	// This one is from 2024-11-21T03:02:19Z
+	baseGitImage = "cgr.dev/chainguard/git:latest@sha256:188b6d52faef9fbd73076b59ba56eeed724599adcadc889f838260da1956ef6c"
+)
+
 // GitInfo contains information about a git reference
 type GitInfo struct {
 	// git reference used for the git commands
@@ -82,7 +91,7 @@ func New(
 ) (*GitInfo, error) {
 	ctr := gitBaseContainer
 	if ctr == nil {
-		ctr = dag.Container().From("cgr.dev/chainguard/git:latest")
+		ctr = dag.Container().From(baseGitImage)
 	}
 	ctr = ctr.
 		WithMountedDirectory("/workdir", gitDirectory).

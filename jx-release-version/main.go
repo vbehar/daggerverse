@@ -26,8 +26,9 @@ func New(
 	imageRepository string,
 	// image tag of jx-release-version.
 	// See https://github.com/jenkins-x-plugins/jx-release-version/releases for available tags.
+	// Run `crane digest ghcr.io/jenkins-x/jx-release-version:2.7.8` to get the digest.
 	// +optional
-	// +default="2.7.6@sha256:603d9c7c3cdbb14210abbd04d386f138c0490ebce267f341053c5b24f32fa772"
+	// +default="2.7.8@sha256:4230f7cf1067e91c966f7a23c3731f69be440677353dbef4f773417b03af0b0a"
 	imageTag string,
 	// log level to use for the command.
 	// +optional
