@@ -17,8 +17,8 @@ const (
 	// the base crane image: https://images.chainguard.dev/directory/image/crane/overview
 	// retrieve the latest sha256 hash with: `crane digest cgr.dev/chainguard/crane:latest`
 	// and to retrieve its creation time: `crane config cgr.dev/chainguard/crane:latest | jq .created`
-	// This one is from 2024-11-12T12:01:47Z
-	baseCraneImage = "cgr.dev/chainguard/crane:latest@sha256:8b5672afe6a71a1e9c60dc50d49f780bb9c706ea00684772f1d4bebbcd00b1c7"
+	// This one is from 2025-01-15T20:03:35Z
+	baseCraneImage = "cgr.dev/chainguard/crane:latest@sha256:cba1e7b2f241b06d09d30d4630b679facb4ae7b771f4003b45f1a67617558d31"
 )
 
 // Crane is a Dagger Module to interact with the Crane CLI.
