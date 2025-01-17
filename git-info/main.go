@@ -22,8 +22,8 @@ const (
 	// the base git image: https://images.chainguard.dev/directory/image/git/overview
 	// retrieve the latest sha256 hash with: `crane digest cgr.dev/chainguard/git:latest`
 	// and to retrieve its creation time: `crane config cgr.dev/chainguard/git:latest | jq .created`
-	// This one is from 2024-11-21T03:02:19Z
-	baseGitImage = "cgr.dev/chainguard/git:latest@sha256:188b6d52faef9fbd73076b59ba56eeed724599adcadc889f838260da1956ef6c"
+	// This one is from 2025-01-16T23:46:21Z
+	baseGitImage = "cgr.dev/chainguard/git:latest@sha256:4693322b3f02d005e5c079ff17ffb8cec77c8b0dec45de8a920c2f50c7e9177e"
 )
 
 // GitInfo contains information about a git reference

@@ -1,6 +1,6 @@
 {
   "name": "daggerverse",
-  "engineVersion": "v0.14.0",
+  "engineVersion": "v0.15.2",
   "sdk": "go",
   "dependencies": [
     {
@@ -10,13 +10,12 @@
     },
     {
       "name": "gh",
-      "source": "github.com/sagikazarmark/daggerverse/gh@gh/v0.9.0",
-      "pin": "68e9daa611183f5334b4059bac6f4aad62da7a37"
+      "source": "github.com/sagikazarmark/daggerverse/gh@gh/v0.11.0",
+      "pin": "c1be27189ce47d28f84014b715f78e47db9fbadc"
     },
     {
       "name": "jx-release-version",
-      "source": "jx-release-version",
-      "pin": ""
+      "source": "jx-release-version"
     }
   ],
   "source": "dagger"
