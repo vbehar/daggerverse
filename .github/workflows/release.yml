@@ -20,7 +20,7 @@ jobs:
           fetch-tags: true
           persist-credentials: false
       - id: dagger_version
-        uses: sagikazarmark/dagger-version-action@v0.0.1
+        uses: sagikazarmark/dagger-version-action@v0.0.2
       - name: release
         uses: dagger/dagger-for-github@v7
         with:
