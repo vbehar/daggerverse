@@ -1,7 +1,9 @@
 {
   "name": "artifactory",
-  "engineVersion": "v0.15.2",
-  "sdk": "go",
+  "engineVersion": "v0.18.4",
+  "sdk": {
+    "source": "go"
+  },
   "dependencies": [
     {
       "name": "git-info",
@@ -11,6 +13,5 @@
       "name": "jfrogcli",
       "source": "../jfrogcli"
     }
-  ],
-  "source": "."
+  ]
 }
