@@ -1,7 +1,9 @@
 {
   "name": "daggerverse",
-  "engineVersion": "v0.15.2",
-  "sdk": "go",
+  "engineVersion": "v0.18.4",
+  "sdk": {
+    "source": "go"
+  },
   "dependencies": [
     {
       "name": "daggerverse-cockpit",
