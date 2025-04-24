@@ -15,7 +15,7 @@ import (
 
 const (
 	gitHubReleasesURL = "https://api.github.com/repos/jfrog/jfrog-cli/releases/latest"
-	fallbackVersion   = "2.73.0" // from https://github.com/jfrog/jfrog-cli/releases
+	fallbackVersion   = "2.75.0" // from https://github.com/jfrog/jfrog-cli/releases
 	binaryFileURLTpl  = "https://releases.jfrog.io/artifactory/jfrog-cli/v2-jf/%s/jfrog-cli-%s/jf"
 
 	// use fixed base images for reproductible builds and improved caching
@@ -35,7 +35,7 @@ type Jfrogcli struct {
 func New(
 	// version of the JFrog CLI to install. If empty, the latest version will be installed.
 	// +optional
-	// +default="2.73.0"
+	// +default="2.75.0"
 	version string,
 ) *Jfrogcli {
 	return &Jfrogcli{

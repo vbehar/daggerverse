@@ -55,13 +55,13 @@ func New(
 	// version of the GitLab CLI tool to use.
 	// https://gitlab.com/gitlab-org/cli/-/releases
 	// +optional
-	// +default="1.51.0"
+	// +default="1.56.0"
 	glabVersion string,
 	// version of the GitLab Release CLI tool to use.
 	// https://gitlab.com/gitlab-org/release-cli/-/releases
 	// https://gitlab.com/gitlab-org/release-cli/-/blob/master/CHANGELOG.md
 	// +optional
-	// +default="v0.20.0"
+	// +default="v0.23.0"
 	releaseCliVersion string,
 ) *GitlabCli {
 	return &GitlabCli{
