@@ -6,12 +6,20 @@ package main
 
 import (
 	"context"
+	_ "embed"
 	"fmt"
 	"net/url"
 	"regexp"
 	"strings"
 
 	"github.com/vbehar/daggerverse/git-chglog/internal/dagger"
+)
+
+var (
+	//go:embed templates/CHANGELOG.tpl.md
+	defaultChglogTemplate string
+	//go:embed templates/config.yml
+	defaultChglogConfig string
 )
 
 // GitChglog is a Dagger Module to interact with the git-chglog CLI.
@@ -57,7 +65,9 @@ func (g *GitChglog) Container(
 		From(g.ImageRepository + ":" + g.ImageTag)
 
 	if g.ChglogDir == nil {
-		g.ChglogDir = dag.CurrentModule().Source().Directory("templates")
+		g.ChglogDir = dag.Directory().
+			WithNewFile("config.yml", defaultChglogConfig).
+			WithNewFile("CHANGELOG.tpl.md", defaultChglogTemplate)
 	}
 
 	if gitDirectory != nil {
