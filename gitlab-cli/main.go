@@ -31,6 +31,7 @@ type GitlabCli struct {
 	Host              string
 	Repo              string
 	Group             string
+	GitDirectory      *dagger.Directory
 	GLabVersion       string
 	ReleaseCliVersion string
 }
@@ -52,6 +53,10 @@ func New(
 	// default gitlab group for commands accepting the --group flag.
 	// +optional
 	group string,
+	// Git directory to use as a context.
+	// The GitLab CLI will retrieve the repository, branch, etc from this directory.
+	// +optional
+	gitDirectory *dagger.Directory,
 	// version of the GitLab CLI tool to use.
 	// https://gitlab.com/gitlab-org/cli/-/releases
 	// +optional
@@ -70,6 +75,7 @@ func New(
 		Host:              host,
 		Repo:              repo,
 		Group:             group,
+		GitDirectory:      gitDirectory,
 		GLabVersion:       glabVersion,
 		ReleaseCliVersion: releaseCliVersion,
 	}
@@ -84,6 +90,7 @@ func (g *GitlabCli) Container(
 		WithExec([]string{"apk", "add", "--update", "--no-cache",
 			"ca-certificates",
 			"glab~=" + g.GLabVersion,
+			"git",
 			"jq",
 		}).
 		WithFile("/usr/bin/release-cli", g.releaseCLI(ctx)).
@@ -109,6 +116,11 @@ func (g *GitlabCli) Container(
 	}
 	if g.Group != "" {
 		ctr = ctr.WithEnvVariable("GITLAB_GROUP", g.Group) // for glab
+	}
+
+	if g.GitDirectory != nil {
+		ctr = ctr.WithMountedDirectory("/workspace", g.GitDirectory).
+			WithWorkdir("/workspace")
 	}
 
 	return ctr
