@@ -32,9 +32,9 @@ type GitlabCli struct {
 	Repo              string
 	Group             string
 	GitDirectory      *dagger.Directory
-	GLabVersion       string
 	ReleaseCliVersion string
-	Debug             bool
+	GLabVersion       string
+	GLabDebug         bool
 }
 
 func New(
@@ -58,21 +58,21 @@ func New(
 	// The GitLab CLI will retrieve the repository, branch, etc from this directory.
 	// +optional
 	gitDirectory *dagger.Directory,
-	// version of the GitLab CLI tool to use.
-	// https://gitlab.com/gitlab-org/cli/-/releases
-	// +optional
-	// +default="1.57.0"
-	glabVersion string,
 	// version of the GitLab Release CLI tool to use.
 	// https://gitlab.com/gitlab-org/release-cli/-/releases
 	// https://gitlab.com/gitlab-org/release-cli/-/blob/master/CHANGELOG.md
 	// +optional
 	// +default="v0.23.0"
 	releaseCliVersion string,
-	// enable debug mode.
+	// version of the GitLab CLI tool to use.
+	// https://gitlab.com/gitlab-org/cli/-/releases
+	// +optional
+	// +default="1.57.0"
+	glabVersion string,
+	// enable debug mode for the GitLab CLI.
 	// +optional
 	// +default=false
-	debug bool,
+	glabDebug bool,
 ) *GitlabCli {
 	return &GitlabCli{
 		PrivateToken:      privateToken,
@@ -81,9 +81,9 @@ func New(
 		Repo:              repo,
 		Group:             group,
 		GitDirectory:      gitDirectory,
-		GLabVersion:       glabVersion,
 		ReleaseCliVersion: releaseCliVersion,
-		Debug:             debug,
+		GLabVersion:       glabVersion,
+		GLabDebug:         glabDebug,
 	}
 }
 
@@ -102,7 +102,7 @@ func (g *GitlabCli) Container(
 		WithFile("/usr/bin/release-cli", g.releaseCLI(ctx)).
 		WithExec([]string{"chmod", "+x", "/usr/bin/release-cli"})
 
-	if g.Debug {
+	if g.GLabDebug {
 		ctr = ctr.WithEnvVariable("DEBUG", "true") // for glab
 	}
 	if g.Host != "" {
