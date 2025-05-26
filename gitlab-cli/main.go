@@ -107,8 +107,8 @@ func (g *GitlabCli) Container(
 	}
 	if g.Host != "" {
 		ctr = ctr.
-			WithEnvVariable("GITLAB_HOST", g.Host).  // for glab
-			WithEnvVariable("CI_SERVER_URL", g.Host) // for release-cli
+			WithEnvVariable("GITLAB_HOST", hostname(g.Host)).   // for glab
+			WithEnvVariable("CI_SERVER_URL", serverURL(g.Host)) // for release-cli
 	}
 	if g.JobToken != nil {
 		ctr = ctr.WithSecretVariable("CI_JOB_TOKEN", g.JobToken) // for release-cli
@@ -116,7 +116,7 @@ func (g *GitlabCli) Container(
 		ctr = ctr.
 			WithExec([]string{
 				"/bin/sh", "-c",
-				"glab auth login --hostname " + g.Host + " --job-token $CI_JOB_TOKEN",
+				"glab auth login --hostname " + hostname(g.Host) + " --job-token $CI_JOB_TOKEN",
 			})
 	}
 	if g.PrivateToken != nil {
@@ -267,4 +267,28 @@ func (g *GitlabCli) releaseCLI(ctx context.Context) *dagger.File {
 		"https://gitlab.com/gitlab-org/release-cli/-/releases/%s/downloads/bin/release-cli-%s-%s",
 		g.ReleaseCliVersion, os, arch,
 	))
+}
+
+func hostname(hostOrHostname string) string {
+	// if the hostOrHostname is a URL, we want to extract the hostname
+	if strings.Contains(hostOrHostname, "://") {
+		u, err := url.Parse(hostOrHostname)
+		if err != nil {
+			return hostOrHostname // return as is if parsing fails
+		}
+		return u.Hostname()
+	}
+	return hostOrHostname
+}
+
+func serverURL(hostOrHostname string) string {
+	// if the hostOrHostname is a URL, we want to extract the server URL
+	if strings.Contains(hostOrHostname, "://") {
+		u, err := url.Parse(hostOrHostname)
+		if err != nil {
+			return hostOrHostname // return as is if parsing fails
+		}
+		return u.Scheme + "://" + u.Host
+	}
+	return "https://" + hostOrHostname
 }
