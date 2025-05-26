@@ -34,6 +34,7 @@ type GitlabCli struct {
 	GitDirectory      *dagger.Directory
 	GLabVersion       string
 	ReleaseCliVersion string
+	Debug             bool
 }
 
 func New(
@@ -60,7 +61,7 @@ func New(
 	// version of the GitLab CLI tool to use.
 	// https://gitlab.com/gitlab-org/cli/-/releases
 	// +optional
-	// +default="1.56.0"
+	// +default="1.57.0"
 	glabVersion string,
 	// version of the GitLab Release CLI tool to use.
 	// https://gitlab.com/gitlab-org/release-cli/-/releases
@@ -68,6 +69,10 @@ func New(
 	// +optional
 	// +default="v0.23.0"
 	releaseCliVersion string,
+	// enable debug mode.
+	// +optional
+	// +default=false
+	debug bool,
 ) *GitlabCli {
 	return &GitlabCli{
 		PrivateToken:      privateToken,
@@ -78,6 +83,7 @@ func New(
 		GitDirectory:      gitDirectory,
 		GLabVersion:       glabVersion,
 		ReleaseCliVersion: releaseCliVersion,
+		Debug:             debug,
 	}
 }
 
@@ -96,18 +102,27 @@ func (g *GitlabCli) Container(
 		WithFile("/usr/bin/release-cli", g.releaseCLI(ctx)).
 		WithExec([]string{"chmod", "+x", "/usr/bin/release-cli"})
 
-	if g.PrivateToken != nil {
-		ctr = ctr.
-			WithSecretVariable("GITLAB_TOKEN", g.PrivateToken).        // for glab
-			WithSecretVariable("GITLAB_PRIVATE_TOKEN", g.PrivateToken) // for release-cli
-	}
-	if g.JobToken != nil {
-		ctr = ctr.WithSecretVariable("CI_JOB_TOKEN", g.JobToken) // for glab & release-cli
+	if g.Debug {
+		ctr = ctr.WithEnvVariable("DEBUG", "true") // for glab
 	}
 	if g.Host != "" {
 		ctr = ctr.
 			WithEnvVariable("GITLAB_HOST", g.Host).  // for glab
 			WithEnvVariable("CI_SERVER_URL", g.Host) // for release-cli
+	}
+	if g.JobToken != nil {
+		ctr = ctr.WithSecretVariable("CI_JOB_TOKEN", g.JobToken) // for release-cli
+		// for glab, we need to run the login cmd
+		ctr = ctr.
+			WithExec([]string{
+				"/bin/sh", "-c",
+				"glab auth login --hostname " + g.Host + " --job-token $CI_JOB_TOKEN",
+			})
+	}
+	if g.PrivateToken != nil {
+		ctr = ctr.
+			WithSecretVariable("GITLAB_TOKEN", g.PrivateToken).        // for glab
+			WithSecretVariable("GITLAB_PRIVATE_TOKEN", g.PrivateToken) // for release-cli
 	}
 	if g.Repo != "" {
 		ctr = ctr.
