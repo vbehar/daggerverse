@@ -22,8 +22,8 @@ const (
 	// the base git image: https://images.chainguard.dev/directory/image/git/overview
 	// retrieve the latest sha256 hash with: `crane digest cgr.dev/chainguard/git:latest-root`
 	// and to retrieve its creation time: `crane config cgr.dev/chainguard/git:latest-root | jq .created`
-	// This one is from 2025-05-08T17:03:55Z
-	baseGitImage = "cgr.dev/chainguard/git:latest-root@sha256:bbb131a23d4f0a7ba753dbe7ebab3d7307298c02d1f6ecd7d25eff2b2d5f60de"
+	// This one is from 2025-05-22T22:22:29Z
+	baseGitImage = "cgr.dev/chainguard/git:latest-root@sha256:dc6732749bdedf7f7731d2feb06e7c5e0660cddc2af4caaf098f720f1c033ab7"
 )
 
 // GitInfo contains information about a git reference
@@ -66,7 +66,7 @@ func New(
 	// +default="origin"
 	gitRemoteName string,
 	// base container to use for git commands
-	// default to cgr.dev/chainguard/git:latest
+	// default to cgr.dev/chainguard/git:latest-root
 	// +optional
 	gitBaseContainer *dagger.Container,
 	// length of the commit hash to use

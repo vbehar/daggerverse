@@ -17,14 +17,14 @@ const (
 	// the base wolfi image: https://images.chainguard.dev/directory/image/wolfi-base/overview
 	// retrieve the latest sha256 hash with: `crane digest cgr.dev/chainguard/wolfi-base:latest`
 	// and to retrieve its creation time: `crane config cgr.dev/chainguard/wolfi-base:latest | jq .created`
-	// This one is from 2025-04-22T11:15:50Z
-	baseWolfiImage = "cgr.dev/chainguard/wolfi-base:latest@sha256:6dbd3e4b965942b30546dfbe6582d19e8023704d63f09e3205c08b4aa9adc8cf"
+	// This one is from 2025-05-22T20:15:28Z
+	baseWolfiImage = "cgr.dev/chainguard/wolfi-base:latest@sha256:0c35d31660ee8ff26c0893f7f1fe5752aea11f036536368791d2854e67112f85"
 
 	// the base BUILD image: https://images.chainguard.dev/directory/image/go/overview
 	// retrieve the latest sha256 hash with: `crane digest cgr.dev/chainguard/go:latest-dev`
 	// and to retrieve its creation time: `crane config cgr.dev/chainguard/go:latest-dev | jq .created`
-	// This one is from 2025-04-22T11:15:50Z
-	baseGoImage = "cgr.dev/chainguard/go:latest-dev@sha256:889b05ea852edca22e0813d622ff3d027c8492e6e1bda4e3e7ae6cfb8acf0ae7"
+	// This one is from 2025-05-26T06:22:59Z
+	baseGoImage = "cgr.dev/chainguard/go:latest-dev@sha256:158a3babc2b9c26f71046825d19315c2bbbf0276823ed61c85c8c1c9c42d4e5b"
 )
 
 // Artifactory is a Dagger Module to interact with JFrog Artifactory.
