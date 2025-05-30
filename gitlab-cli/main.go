@@ -135,7 +135,8 @@ func (g *GitlabCli) Container(
 
 	if g.GitDirectory != nil {
 		ctr = ctr.WithMountedDirectory("/workspace", g.GitDirectory).
-			WithWorkdir("/workspace")
+			WithWorkdir("/workspace").
+			WithExec([]string{"git", "config", "--global", "--add", "safe.directory", "/workspace"})
 	}
 
 	return ctr

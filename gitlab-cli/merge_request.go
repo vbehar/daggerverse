@@ -101,3 +101,78 @@ func (mr *MergeRequest) Info(
 		}).
 		Stdout(ctx)
 }
+
+// Diff returns the merge request diff.
+func (mr *MergeRequest) Diff(
+	ctx context.Context,
+	// use raw diff format?
+	// +optional
+	// +default=false
+	raw bool,
+	// should we ignore failure?
+	// +optional
+	// +default=false
+	ignoreFailure bool,
+) (string, error) {
+	if mr.Iid == "" {
+		return "", nil
+	}
+
+	expect := dagger.ReturnTypeSuccess
+	if ignoreFailure {
+		expect = dagger.ReturnTypeAny
+	}
+
+	var flags []string
+	if raw {
+		flags = append(flags, "--raw")
+	}
+
+	return mr.GitlabCli.Container(ctx).
+		WithExec(append([]string{
+			"glab", "mr", "diff", mr.Iid,
+		}, flags...), dagger.ContainerWithExecOpts{
+			Expect: expect,
+		}).
+		Stdout(ctx)
+}
+
+// Update updates a merge request.
+func (mr *MergeRequest) Update(
+	ctx context.Context,
+	// the title. If empty, the title will not be updated.
+	// +optional
+	title string,
+	// the description. If empty, the description will not be updated.
+	// +optional
+	description string,
+	// should we ignore failure?
+	// +optional
+	// +default=false
+	ignoreFailure bool,
+) (string, error) {
+	if mr.Iid == "" {
+		return "", nil
+	}
+
+	expect := dagger.ReturnTypeSuccess
+	if ignoreFailure {
+		expect = dagger.ReturnTypeAny
+	}
+
+	var flags []string
+	if title != "" {
+		flags = append(flags, "--title", title)
+	}
+	if description != "" {
+		flags = append(flags, "--description", description)
+	}
+
+	return mr.GitlabCli.Container(ctx).
+		WithExec(append([]string{
+			"glab", "mr", "update", mr.Iid,
+		}, flags...), dagger.ContainerWithExecOpts{
+			Expect: expect,
+		}).
+		Stdout(ctx)
+}
