@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/vbehar/daggerverse/gitlab-cli/internal/dagger"
 )
@@ -132,6 +133,36 @@ func (mr *MergeRequest) Diff(
 		WithExec(append([]string{
 			"glab", "mr", "diff", mr.Iid,
 		}, flags...), dagger.ContainerWithExecOpts{
+			Expect: expect,
+		}).
+		Stdout(ctx)
+}
+
+// Commits returns the merge request commits.
+// In JSON format
+// https://docs.gitlab.com/api/merge_requests/#get-single-merge-request-commits
+func (mr *MergeRequest) Commits(
+	ctx context.Context,
+	// should we ignore failure?
+	// +optional
+	// +default=false
+	ignoreFailure bool,
+) (string, error) {
+	if mr.Iid == "" {
+		return "", nil
+	}
+
+	endpoint := fmt.Sprintf("/projects/:fullpath/merge_requests/%s/commits", mr.Iid)
+
+	expect := dagger.ReturnTypeSuccess
+	if ignoreFailure {
+		expect = dagger.ReturnTypeAny
+	}
+
+	return mr.GitlabCli.Container(ctx).
+		WithExec([]string{
+			"glab", "api", endpoint,
+		}, dagger.ContainerWithExecOpts{
 			Expect: expect,
 		}).
 		Stdout(ctx)
