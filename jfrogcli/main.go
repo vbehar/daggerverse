@@ -91,8 +91,8 @@ func (c *Jfrogcli) Install(
 	binFile := dag.HTTP(binURL)
 
 	ctr = ctr.
-		WithMountedFile("/usr/local/bin/jf", binFile, dagger.ContainerWithFileOpts{
-			Permissions: 555,
+		WithFile("/usr/local/bin/jf", binFile, dagger.ContainerWithFileOpts{
+			Permissions: 0755,
 		}).
 		WithEnvVariable("PATH", "/usr/local/bin:$PATH", dagger.ContainerWithEnvVariableOpts{Expand: true}).
 		WithEnvVariable("CI", "true").

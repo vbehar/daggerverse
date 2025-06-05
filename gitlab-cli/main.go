@@ -99,7 +99,9 @@ func (g *GitlabCli) Container(
 			"git",
 			"jq",
 		}).
-		WithFile("/usr/bin/release-cli", g.releaseCLI(ctx)).
+		WithFile("/usr/bin/release-cli", g.releaseCLI(ctx), dagger.ContainerWithFileOpts{
+			Permissions: 0755,
+		}).
 		WithExec([]string{"chmod", "+x", "/usr/bin/release-cli"})
 
 	if g.GLabDebug {

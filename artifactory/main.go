@@ -141,7 +141,7 @@ func (a *Artifactory) PublishFile(
 			destination,
 		},
 		dag.Container().From(baseWolfiImage).
-			WithFile("/src", file),
+			WithMountedFile("/src", file),
 		logLevel).
 		Stdout(ctx)
 }

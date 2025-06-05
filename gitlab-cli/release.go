@@ -52,7 +52,7 @@ func (r *Release) Container(ctx context.Context) *dagger.Container {
 	if r.DescriptionFile != nil {
 		ctr = ctr.
 			WithWorkdir("/workdir").
-			WithFile(r.descriptionFileName(), r.DescriptionFile)
+			WithMountedFile(r.descriptionFileName(), r.DescriptionFile)
 	}
 
 	return ctr
