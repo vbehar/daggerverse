@@ -15,15 +15,15 @@ import (
 
 const (
 	gitHubReleasesURL = "https://api.github.com/repos/jfrog/jfrog-cli/releases/latest"
-	fallbackVersion   = "2.76.1" // from https://github.com/jfrog/jfrog-cli/releases
+	fallbackVersion   = "2.78.2" // from https://github.com/jfrog/jfrog-cli/releases
 	binaryFileURLTpl  = "https://releases.jfrog.io/artifactory/jfrog-cli/v2-jf/%s/jfrog-cli-%s/jf"
 
 	// use fixed base images for reproductible builds and improved caching
 	// the base image: https://images.chainguard.dev/directory/image/wolfi-base/overview
 	// retrieve the latest sha256 hash with: `crane digest cgr.dev/chainguard/wolfi-base:latest`
 	// and to retrieve its creation time: `crane config cgr.dev/chainguard/wolfi-base:latest | jq .created`
-	// This one is from 2025-05-22T20:15:28Z
-	baseWolfiImage = "cgr.dev/chainguard/wolfi-base:latest@sha256:0c35d31660ee8ff26c0893f7f1fe5752aea11f036536368791d2854e67112f85"
+	// This one is from 2025-06-02T17:31:02Z
+	baseWolfiImage = "cgr.dev/chainguard/wolfi-base:latest@sha256:57428116d2d7c27d1d4de4103e19b40bb8d2942ff6dff31b900e55efedeb7e30"
 )
 
 // Jfrogcli is a Dagger Module to install and run the JFrog CLI.
@@ -35,7 +35,7 @@ type Jfrogcli struct {
 func New(
 	// version of the JFrog CLI to install. If empty, the latest version will be installed.
 	// +optional
-	// +default="2.76.1"
+	// +default="2.78.2"
 	version string,
 ) *Jfrogcli {
 	return &Jfrogcli{

@@ -1,6 +1,6 @@
 {
   "name": "git-chglog",
-  "engineVersion": "v0.18.9",
+  "engineVersion": "v0.18.14",
   "sdk": {
     "source": "go"
   }
