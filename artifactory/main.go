@@ -16,15 +16,15 @@ const (
 	// use fixed base images for reproductible builds and improved caching
 	// the base wolfi image: https://images.chainguard.dev/directory/image/wolfi-base/overview
 	// retrieve the latest sha256 hash with: `crane digest cgr.dev/chainguard/wolfi-base:latest`
-	// and to retrieve its creation time: `crane config cgr.dev/chainguard/wolfi-base:latest | jq .created`
-	// This one is from 2025-06-02T17:31:02Z
-	baseWolfiImage = "cgr.dev/chainguard/wolfi-base:latest@sha256:57428116d2d7c27d1d4de4103e19b40bb8d2942ff6dff31b900e55efedeb7e30"
+	// and to retrieve its creation time: `crane config cgr.dev/chainguard/wolfi-base:latest | jq -r .created`
+	// This one is from 2025-10-08T16:40:56Z
+	baseWolfiImage = "cgr.dev/chainguard/wolfi-base:latest@sha256:815b27b8a70713c70404e44a718eddd52ea6f4a2bfad5f56455b52cd2789a9b2"
 
 	// the base BUILD image: https://images.chainguard.dev/directory/image/go/overview
 	// retrieve the latest sha256 hash with: `crane digest cgr.dev/chainguard/go:latest-dev`
-	// and to retrieve its creation time: `crane config cgr.dev/chainguard/go:latest-dev | jq .created`
-	// This one is from 2025-06-06T21:28:17Z
-	baseGoImage = "cgr.dev/chainguard/go:latest-dev@sha256:faa589370de5c382cb7c4ae7313bd0fa677db4b70ae72013307d7fc93890e272"
+	// and to retrieve its creation time: `crane config cgr.dev/chainguard/go:latest-dev | jq -r .created`
+	// This one is from 2025-10-10T12:48:32Z
+	baseGoImage = "cgr.dev/chainguard/go:latest-dev@sha256:94b550d64b549c2a3b84488a0f1f2e0ab49b899c2345b187eb03003d5ae06627"
 )
 
 // Artifactory is a Dagger Module to interact with JFrog Artifactory.

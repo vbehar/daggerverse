@@ -21,9 +21,9 @@ const (
 	// use fixed base images for reproductible builds and improved caching
 	// the base git image: https://images.chainguard.dev/directory/image/git/overview
 	// retrieve the latest sha256 hash with: `crane digest cgr.dev/chainguard/git:latest-root`
-	// and to retrieve its creation time: `crane config cgr.dev/chainguard/git:latest-root | jq .created`
-	// This one is from 2025-07-29T12:38:07Z
-	baseGitImage = "cgr.dev/chainguard/git:latest-root@sha256:324ed9e742e4849dd779e9edb685acdbeba2e601d98b81968976dcf67fad2b61"
+	// and to retrieve its creation time: `crane config cgr.dev/chainguard/git:latest-root | jq -r .created`
+	// This one is from 2025-10-10T12:48:32Z
+	baseGitImage = "cgr.dev/chainguard/git:latest-root@sha256:4616d420e2f8e8a8f47cbe922b2e464ec9c737a3405607c680f2ef3bee15968e"
 )
 
 // GitInfo contains information about a git reference

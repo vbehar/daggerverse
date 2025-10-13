@@ -19,9 +19,9 @@ const (
 	// use fixed base images for reproductible builds and improved caching
 	// the base image: https://images.chainguard.dev/directory/image/wolfi-base/overview
 	// retrieve the latest sha256 hash with: `crane digest cgr.dev/chainguard/wolfi-base:latest`
-	// and to retrieve its creation time: `crane config cgr.dev/chainguard/wolfi-base:latest | jq .created`
-	// This one is from 2025-06-02T17:31:02Z
-	baseWolfiImage = "cgr.dev/chainguard/wolfi-base:latest@sha256:57428116d2d7c27d1d4de4103e19b40bb8d2942ff6dff31b900e55efedeb7e30"
+	// and to retrieve its creation time: `crane config cgr.dev/chainguard/wolfi-base:latest | jq -r .created`
+	// This one is from 2025-10-08T16:40:56Z
+	baseWolfiImage = "cgr.dev/chainguard/wolfi-base:latest@sha256:815b27b8a70713c70404e44a718eddd52ea6f4a2bfad5f56455b52cd2789a9b2"
 )
 
 // GitlabCli is a Dagger Module to interact with the GitLab CLI.
@@ -67,7 +67,7 @@ func New(
 	// version of the GitLab CLI tool to use.
 	// https://gitlab.com/gitlab-org/cli/-/releases
 	// +optional
-	// +default="1.65.0"
+	// +default="1.73.1"
 	glabVersion string,
 	// enable debug mode for the GitLab CLI.
 	// +optional
